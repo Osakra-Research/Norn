@@ -215,7 +215,7 @@ python norn_api_server.py --port 11434 --steps auto
   title={Project Norn V15: Continuous Latent Chain-of-Thought Reasoning via Dynamic Stochastic Recurrence},
   author={{Osakra Research}},
   year={2026},
-  howpublished={\url{https://huggingface.co/osakra-research/norn-v15}},
+  howpublished={\url{https://huggingface.co/Osakra/norn-v15}},
   note={Hugging Face Technical Report and Model Release}
 }
 ```

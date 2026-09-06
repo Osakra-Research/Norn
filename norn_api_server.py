@@ -119,10 +119,19 @@ async def list_models():
         "object": "list",
         "data": [
             {
+                "id": "Osakra/norn-v15",
+                "object": "model",
+                "created": 1725600000,
+                "owned_by": "osakra",
+                "permission": [],
+                "root": "norn-v15",
+                "parent": None
+            },
+            {
                 "id": "norn-v15",
                 "object": "model",
                 "created": 1725600000,
-                "owned_by": "osakra-research",
+                "owned_by": "osakra",
                 "permission": [],
                 "root": "norn-v15",
                 "parent": None
@@ -131,7 +140,7 @@ async def list_models():
                 "id": "osakra-research/norn-v15",
                 "object": "model",
                 "created": 1725600000,
-                "owned_by": "osakra-research",
+                "owned_by": "osakra",
                 "permission": [],
                 "root": "norn-v15",
                 "parent": None

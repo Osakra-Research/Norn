@@ -28,10 +28,12 @@ base_model: Qwen/Qwen3-4B-Base
 <img src="./norn_avatar.png" width="140" alt="Project Norn Symbiote Avatar" />
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Parameters](https://img.shields.io/badge/Parameters-4.45B%20%28NF4%20Quantized%29-00ffc4.svg)](https://huggingface.co)
-[![VRAM Footprint](https://img.shields.io/badge/Active%20VRAM-%3C%204.5%20GB-blueviolet.svg)](https://huggingface.co)
-[![Composite Score](https://img.shields.io/badge/Composite%20Score-71.6%25%20%28Auto--Mode%29-brightgreen.svg)](https://huggingface.co)
+[![Parameters](https://img.shields.io/badge/Parameters-4.45B%20%28NF4%20Quantized%29-00ffc4.svg)](https://huggingface.co/Osakra/norn-v15)
+[![VRAM Footprint](https://img.shields.io/badge/Active%20VRAM-%3C%204.5%20GB-blueviolet.svg)](https://huggingface.co/Osakra/norn-v15)
+[![Composite Score](https://img.shields.io/badge/Composite%20Score-71.6%25%20%28Auto--Mode%29-brightgreen.svg)](https://huggingface.co/Osakra/norn-v15)
 [![Reproducible Dataset](https://img.shields.io/badge/Test%20Suite-250%20Samples%20Bundled-orange.svg)](./evaluation_suite_250.json)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Osakra--Research%2FNorn-181717.svg?logo=github)](https://github.com/Osakra-Research/Norn)
+[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Osakra%2Fnorn--v15-FFD21E.svg?logo=huggingface)](https://huggingface.co/Osakra/norn-v15)
 
 </div>
 
@@ -210,8 +212,14 @@ To ensure scientific validity and verify zero test-set leakage, an automated mul
 
 ### 8.1 Installation
 ```bash
-git clone https://huggingface.co/osakra-research/norn-v15
+# Clone from Hugging Face:
+git clone https://huggingface.co/Osakra/norn-v15
 cd norn-v15
+
+# Or clone from GitHub:
+# git clone https://github.com/Osakra-Research/Norn.git
+# cd Norn
+
 pip install -r requirements.txt
 ```
 
@@ -340,7 +348,7 @@ python merge_lora.py --output_dir ./norn_v15_merged
   title={Project Norn V15: Continuous Latent Chain-of-Thought Reasoning via Dynamic Stochastic Recurrence},
   author={{Osakra Research}},
   year={2026},
-  howpublished={\url{https://huggingface.co/osakra-research/norn-v15}},
+  howpublished={\url{https://huggingface.co/Osakra/norn-v15}},
   note={Hugging Face Technical Report and Model Release}
 }
 ```
