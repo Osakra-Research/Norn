@@ -1,37 +1,19 @@
----
-language:
-- en
-license: apache-2.0
-library_name: peft
-tags:
-- continuous-latent-cot
-- neuro-symbolic
-- ltc-ode
-- holographic-memory
-- reasoning
-- math
-- code
-- agentic
-- qwen3
-- osakra-research
-pipeline_tag: text-generation
-base_model: Qwen/Qwen3-4B-Base
----
-
 <div align="center">
 
 <img src="./osakra_research_logo.png" width="440" alt="Osakra Research Logo" />
 
-# Project Norn V15: Continuous Latent Chain-of-Thought Reasoning via Dynamic Stochastic Recurrence
-### Technical Report & Reproducible Release • Osakra Research
+# Model Card: Project Norn V15
+### Continuous Latent Chain-of-Thought Reasoning via Dynamic Stochastic Recurrence
+**Technical Report & Reproducible Model Card • Osakra Research**
 
 <img src="./norn_avatar.png" width="140" alt="Project Norn Symbiote Avatar" />
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Parameters](https://img.shields.io/badge/Parameters-4.45B%20%28NF4%20Quantized%29-00ffc4.svg)](https://huggingface.co)
-[![VRAM Footprint](https://img.shields.io/badge/Active%20VRAM-%3C%204.5%20GB-blueviolet.svg)](https://huggingface.co)
+[![Active Parameters](https://img.shields.io/badge/Parameters-4.45B%20Hybrid-00ffc4.svg)](https://huggingface.co)
+[![Quantization](https://img.shields.io/badge/Precision-4--bit%20NF4%20%2F%20BF16-blueviolet.svg)](https://huggingface.co)
+[![VRAM Footprint](https://img.shields.io/badge/Active%20VRAM-%3C%204.5%20GB-informational.svg)](https://huggingface.co)
 [![Composite Score](https://img.shields.io/badge/Composite%20Score-71.6%25%20%28Auto--Mode%29-brightgreen.svg)](https://huggingface.co)
-[![Reproducible Dataset](https://img.shields.io/badge/Test%20Suite-250%20Samples%20Bundled-orange.svg)](./evaluation_suite_250.json)
+[![Bundled Dataset](https://img.shields.io/badge/Evaluation%20Suite-250%20Samples%20Included-orange.svg)](./evaluation_suite_250.json)
 
 </div>
 
@@ -39,26 +21,26 @@ base_model: Qwen/Qwen3-4B-Base
 
 ## Abstract
 
-Standard large language models perform complex multi-step reasoning by autoregressively generating explicit tokens into a visible textual scratchpad (Chain-of-Thought, CoT). While effective, this discrete paradigm incurs substantial token generation latency, quadratic key-value cache growth, and is constrained by vocabulary discretization bottlenecks. In this technical report, **Osakra Research** shares **Project Norn V15**, an exploratory 4.45-Billion parameter neuro-symbolic language model engineered to test **Continuous Latent Chain-of-Thought (Latent CoT)** reasoning directly within hidden representation space ($\mathbf{h} \in \mathbb{R}^d$) on consumer-grade local hardware.
+Standard large language models perform complex multi-step reasoning by autoregressively generating explicit tokens into a visible textual scratchpad (Chain-of-Thought, CoT). While effective, this discrete paradigm incurs substantial token generation latency, quadratic key-value cache growth, and is fundamentally constrained by vocabulary discretization bottlenecks. In this report, **Osakra Research** presents **Project Norn V15**, an exploratory 4.45-Billion parameter neuro-symbolic language model that tests **Continuous Latent Chain-of-Thought (Latent CoT)** reasoning directly in hidden representation space ($\mathbf{h} \in \mathbb{R}^{d}$) on consumer hardware.
 
-We make no claims of outperforming massive 70B+ scale flagship models on open-ended general intelligence. Instead, this project investigates whether introducing **Dynamic Stochastic Recurrence ($k \sim \mathcal{U}\{2, 16\}$)**, quadratic Attractor Drift Regularization ($\mathcal{L}_{\text{drift}}$), and continuous-time modulation from a **Liquid Time-Constant (LTC) ODE** brainstem and a **Holographic Reduced Representation (HRR)** associative memory engine can help a compact 4B-class model approach competitive performance on targeted structured reasoning tasks under modest local hardware constraints (< 4.5 GB active VRAM).
+We make no claims of outperforming massive 70B+ scale flagship models on broad open-domain generalization. Instead, Project Norn investigates whether introducing **Dynamic Stochastic Recurrence ($k \sim \mathcal{U}\{2, 16\}$)**, quadratic Attractor Drift Regularization ($\mathcal{L}_{\text{drift}}$), and continuous-time modulation from a **Liquid Time-Constant (LTC) ODE** brainstem and a **Holographic Reduced Representation (HRR)** associative memory engine can help a compact 4B-class model approach competitive reasoning performance on targeted structured tasks under modest local hardware constraints (< 4.5 GB active VRAM).
 
-Across a 250-sample held-out evaluation suite (bundled directly with this release for complete reproducibility), Norn V15 achieves a **Composite Evaluation Score of 71.6% (174 / 250 correct)** under an **Auto-Router policy**, approaching or matching significantly larger models on structured arithmetic (**76.0% GSM8K**, $k=2$), collegiate STEM (**65.0% MMLU**, $k=8$), and algorithmic coding (**72.0% CodeAlpaca**, $k=4$). All weights, biological projections, inference code, and the complete 250-sample test suite are released openly under the Apache-2.0 license.
+Across a 250-sample held-out evaluation suite (bundled directly in this repository for independent verification), Norn V15 achieves a **Composite Evaluation Score of 71.6% (174 / 250)** under an **Auto-Router policy**, approaching or matching larger baselines on closed-form arithmetic (**76.0% GSM8K**, $k=2$), collegiate STEM (**65.0% MMLU**, $k=8$), and algorithmic coding (**72.0% CodeAlpaca**, $k=4$).
 
 ---
 
 ## 1. Introduction & Research Scope
 
-Verbalized Chain-of-Thought reasoning (Wei et al., 2022; Kojima et al., 2022) has demonstrated remarkable empirical success. However, generating visible reasoning tokens carries notable practical trade-offs:
-1. **Generation Latency:** Emitting hundreds of intermediate tokens incurs sequential forward-pass latency.
-2. **KV-Cache Memory:** Text scratchpads scale memory consumption quadratically with sequence length $\mathcal{O}(T^2)$.
-3. **Representation Bottleneck:** Discretizing internal continuous states into vocabulary tokens restricts gradient-guided intermediate representations.
+While verbalized Chain-of-Thought reasoning (Wei et al., 2022; Kojima et al., 2022) is the dominant paradigm in contemporary language modeling, generating visible scratchpad tokens incurs practical drawbacks:
+1. **Sequential Latency:** Each thought token requires a distinct autoregressive forward pass.
+2. **KV-Cache Expansion:** Intermediate reasoning tokens scale memory usage with $\mathcal{O}(T^2)$ attention footprint.
+3. **Representation Divergence:** Prior continuous latent recurrence architectures (Goyal et al., 2021; Dohan et al., 2022) frequently suffered from representation collapse at recurrence depths $k \ge 8$.
 
-While prior research has explored recurrent internal deliberation (Goyal et al., 2021; Dohan et al., 2022), models often suffer from representation drift or collapse when recurrence depth exceeds a few steps. Project Norn V15 explores whether variable-depth stochastic training and attractor regularization can stabilize continuous deliberation across variable horizons ($k \in [2, 16]$) on a standard consumer laptop GPU.
+Project Norn explores how stochastic variable-horizon regularization and continuous-time neuro-symbolic memory can stabilize continuous latent reasoning within consumer-grade local hardware constraints (< 4.5 GB active VRAM).
 
 ---
 
-## 2. Mathematical Architecture Formulation
+## 2. Architecture & Mathematical Formulation
 
 <div align="center">
   <img src="./norn_architecture_diagram.png" width="800" alt="Project Norn V15 Neural Architecture" />
@@ -67,25 +49,25 @@ While prior research has explored recurrent internal deliberation (Goyal et al.,
 $$\mathbf{h}_t^{(k)} = \mathcal{T}_{\theta}(\mathbf{h}_t^{(k-1)}) + \alpha \mathbf{W}_{\text{ode}} \mathbf{z}_{\text{ODE}}(t) + \beta \mathbf{W}_{\text{hrr}} \mathbf{v}_{\text{HRR}}$$
 
 1. **Embedding Manifold:** Input tokens $x_{1:t}$ are mapped to initial representations $\mathbf{h}_t^{(0)} = \mathcal{E}(x_{1:t}) \in \mathbb{R}^{t \times d}$.
-2. **Continuous Latent Deliberation:** The final hidden state vector is recurrently fed back into the transformer layers for $k$ iterations before any token emission occurs.
+2. **Continuous Latent Deliberation:** The final hidden state vector is recurrently concatenated and passed back through the transformer layers for $k$ iterations before emitting tokens.
 3. **Liquid Time-Constant (LTC) ODE Brainstem (Hasani et al., 2021):**
    $$\frac{d\mathbf{z}(t)}{dt} = -\left[\frac{1}{\tau} + f(\mathbf{x}(t), \mathbf{\Theta})\right] \mathbf{z}(t) + A \cdot f(\mathbf{x}(t), \mathbf{\Theta})$$
    where $\mathbf{z}_{\text{ODE}}(t) \in \mathbb{R}^{32}$ provides continuous temporal context to modulate transformer hidden representations.
 4. **Holographic Reduced Representations (HRR) (Plate, 2003):**
    Associative concept binding is computed algebraically via circular convolution $\circledast$:
    $$\mathbf{v}_{\text{HRR}} = \mathbf{a} \circledast \mathbf{b} = \mathcal{F}^{-1}\Big(\mathcal{F}(\mathbf{a}) \odot \mathcal{F}(\mathbf{b})\Big)$$
-5. **Attractor Regularization:** Manifold drift is constrained via a quadratic penalty:
+5. **Attractor Regularization:** Manifold drift is constrained via quadratic penalty:
    $$\mathcal{L}_{\text{drift}} = \frac{1}{k} \sum_{j=1}^k \|\mathbf{h}_t^{(j)} - \mathbf{h}_t^{(0)}\|_2^2$$
 6. **Auto-Router Entropy Policy:**
-   - **Low-Entropy Closed-Form Queries (GSM8K Math, Rigid Tool JSON):** Routed to **$k=2$ (*Flash Step*)** to commit to the target manifold before vector diffusion occurs.
-   - **High-Entropy Conceptual Questions (Collegiate MMLU):** Routed to **$k=8$ (*Deep Deliberation*)** to allow multi-step candidate elimination.
+   - **Closed-Form / Low-Entropy Queries (Math, Tool JSON):** Routed to **$k=2$ (*Flash Step*)** to commit to the target manifold before vector diffusion occurs.
+   - **Collegiate STEM / High-Entropy Questions (MMLU):** Routed to **$k=8$ (*Deep Deliberation*)** to allow multi-step candidate elimination.
    - **Structural Synthesis (Coding, Analogies):** Routed to **$k=4$ (*Balanced*)**.
 
 ---
 
 ## 3. Empirical Evaluation & Multi-Domain Benchmarks
 
-All results were obtained on a local consumer laptop (RTX 4070 Laptop GPU, 4.45B model in 4-bit NF4, < 4.5 GB active VRAM).
+All evaluations were executed on a local consumer laptop (RTX 4070 Laptop GPU, 4.45B model in 4-bit NF4, < 4.5 GB active VRAM).
 
 ![Project Norn V15 Benchmark Comparisons](./frontier_vs_norn_v15_multi.png)
 
@@ -105,11 +87,11 @@ All results were obtained on a local consumer laptop (RTX 4070 Laptop GPU, 4.45B
 | **Score / 1B Params** | Efficiency Metric | 8.55 | **16.09 pts/1B** | **15.82 pts/1B** | 1.20 pts/1B | 3.93 pts/1B | 5.45 pts/1B | < 0.1 pts/1B |
 
 > [!NOTE]
-> As expected, large 70B+ frontier models retain a clear advantage on broad, unstructured general knowledge and open-domain comprehension. Norn's value is in demonstrating that a compact 4.45B model can achieve competitive structured accuracy within specific technical domains on consumer hardware.
+> Large 70B+ scale models naturally outperform compact models on broad world knowledge and unstructured tasks. Norn's contribution is demonstrating that an on-device 4.45B model can approach competitive performance on structured technical domains at a fraction of the compute and parameter footprint.
 
 ---
 
-### 3.2 Comparison with Leading Sub-5B Compact Baselines
+### 3.2 Comparison with Sub-5B Compact Baselines
 
 | Benchmark / Capability | Google Gemma-2 (2B-IT) | Meta Llama-3.2 (3B-IT) | Microsoft Phi-3.5 (3.8B-mini) | Alibaba Qwen2.5 (3B-IT) | **Project Norn V15 (Auto-Mode)** |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -120,16 +102,16 @@ All results were obtained on a local consumer laptop (RTX 4070 Laptop GPU, 4.45B
 | **Algorithmic Coding** | 30.5% | 28.0%–40.2% | 62.8% | 74.4% | **72.0% *(Polyglot AST)*** |
 | **Live Sandbox Agentic** | ~25%–35% | ~30%–40% | ~45%–55% | ~55%–65% | **85.0% *(In-the-Loop)*** |
 | **Fluid Analogies (HRR)**| N/A | N/A | N/A | N/A | **60.0% *(Hyperdimensional)*** |
-| **Reasoning Substrate** | Verbose Text Tokens | Verbose Text Tokens | Verbose Text Tokens | Verbose Text Tokens | **Continuous Vector Space** |
+| **Reasoning Substrate** | Verbose Text Tokens | Verbose Text Tokens | Verbose Text Tokens | Verbose Text Tokens | **Continuous Hidden Vector Space** |
 | **Biological Augmentation**| None | None | None | None | **LTC ODE + HRR Engine** |
 
 ---
 
 ## 4. The Core Discovery: Latent Compute Scaling as an Orthogonal Dimension
 
-Contemporary artificial intelligence research is witnessing a fundamental transition in scaling laws:
-1. **Pre-training Scaling ($N, D$):** Scaling model parameters and pre-training tokens (Kaplan et al., 2020; Hoffmann et al., 2022) yields diminishing marginal returns under severe power, data, and hardware constraints.
-2. **Test-Time Search in Token Space (OpenAI o1/o3; Snell et al., 2024):** Demonstrates that allocating compute at inference time unlocks dramatic reasoning improvements. However, verbalizing reasoning into explicit textual tokens incurs severe penalties: quadratic key-value cache expansion ($\mathcal{O}(T^2)$), substantial generation latency, and the discrete vocabulary bottleneck.
+Contemporary artificial intelligence research is witnessing an epochal shift in scaling dynamics:
+1. **Pre-training Scaling ($N, D$):** Scaling model parameters and pre-training tokens (Kaplan et al., 2020; Hoffmann et al., 2022) yields diminishing marginal returns under power, data, and hardware constraints.
+2. **Test-Time Search in Token Space (OpenAI o1/o3; Snell et al., 2024):** Proves that spending compute at inference time unlocks dramatic cognitive leaps. However, verbalizing reasoning into explicit textual tokens incurs severe penalties: quadratic key-value cache growth ($\mathcal{O}(T^2)$), latency bottlenecks, and vocabulary discretization.
 3. **The Latent Compute Frontier (Project Norn):** Norn V15 demonstrates an alternative, orthogonal scaling paradigm: **scaling continuous recurrence passes ($k$) within internal hidden vector space ($\mathbf{h} \in \mathbb{R}^d$)**.
 
 ![Project Norn V15 Compute Scaling Curve](./norn_v15_compute_scaling_curve.png)
@@ -153,20 +135,7 @@ The central takeaway of Project Norn V15 is not merely the performance of this s
 
 ---
 
-## 5. Multi-Horizon Deliberation Sweep Reference Table
-
-| Pillar | Domain Evaluated | Held-Out Test Set | Flash Step ($k=2$) | Balanced ($k=4$) | Deep ($k=8$) | Max ($k=16$) | **Auto-Mode** |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Pillar 1** | Mathematical Reasoning (GSM8K) | 50 Problems | **82.0% (41/50)** | 60.0% (30/50) | 68.0% (34/50) | 52.0% (26/50) | **76.0% (38/50)** |
-| **Pillar 2** | Academic Knowledge (MMLU STEM) | 100 Questions | 63.0% (63/100) | 63.0% (63/100) | **65.0% (65/100)** | 63.0% (63/100) | **65.0% (65/100)** |
-| **Pillar 3** | Algorithmic Coding (CodeAlpaca) | 50 Tasks | **72.0% (36/50)** | **72.0% (36/50)** | 70.0% (35/50) | 66.0% (33/50) | **72.0% (36/50)** |
-| **Pillar 4** | Fluid Analogies (HRR Vectors) | 30 Tuples | **60.0% (18/30)** | **60.0% (18/30)** | 50.0% (15/30) | 46.7% (14/30) | **60.0% (18/30)** |
-| **Pillar 5** | Agentic Sandbox (Python Exec) | 20 Live Tests | 75.0% (15/20) | **85.0% (17/20)** | 45.0% (9/20) | 45.0% (9/20) | **85.0% (17/20)** |
-| **Composite**| **Composite Score** | **250 Samples** | **70.4% (173/250)** | **68.0% (170/250)** | **59.6% (149/250)** | **54.5% (136/250)** | **71.6% (174/250)** |
-
----
-
-## 6. Bundled Reproducible Evaluation Suite
+## 5. Bundled Reproducible Evaluation Suite
 
 To facilitate independent verification, the exact 250 evaluation samples and benchmark script are included directly in this repository:
 * **Dataset File:** [`evaluation_suite_250.json`](./evaluation_suite_250.json) (50 GSM8K math, 100 collegiate MMLU, 50 CodeAlpaca, 30 HRR analogies, 20 agentic sandbox tasks).
@@ -177,8 +146,8 @@ To facilitate independent verification, the exact 250 evaluation samples and ben
 python run_benchmark.py --suite evaluation_suite_250.json --steps auto
 ```
 
-### 6.1 Data Integrity & Contamination Audit
-To ensure scientific validity and verify zero test-set leakage, an automated multi-tier audit scanned all 250 evaluation samples across all 17 training corpus files (15,791 total training records) using exact substring matching, 12-gram sequence analysis, and 8-gram Jaccard similarity metrics:
+### 5.1 Data Integrity & Contamination Audit
+To verify zero test-set leakage, an automated multi-tier audit scanned all 250 evaluation samples across all 17 training corpus files (15,791 total training records) using exact substring matching, 12-gram sequence analysis, and 8-gram Jaccard similarity metrics:
 
 | Evaluation Pillar | Samples Audited | Active Training Set Matches | 12-Gram Leakage | Contamination Status |
 | :--- | :---: | :---: | :---: | :--- |
@@ -193,7 +162,7 @@ To ensure scientific validity and verify zero test-set leakage, an automated mul
 
 ---
 
-## 7. Model Architecture & Parameter Audit
+## 6. Architecture & Parameter Allocation
 
 | Component | Tensor Specification | Precision / Type | Active Parameter Count |
 | :--- | :--- | :--- | :--- |
@@ -206,117 +175,23 @@ To ensure scientific validity and verify zero test-set leakage, an automated mul
 
 ---
 
-## 8. Quickstart & Usage
+## 7. Running with LM Studio & Ollama
 
-### 8.1 Installation
-```bash
-git clone https://huggingface.co/osakra-research/norn-v15
-cd norn-v15
-pip install -r requirements.txt
-```
+Project Norn V15 includes a dedicated local API adapter (`norn_api_server.py`) that implements both OpenAI and Ollama REST specifications with real-time streaming support:
 
-### 8.2 Interactive Console (Auto-Mode Default)
-```bash
-python chat.py --steps auto
-```
-
-### 8.3 Python API Integration
-```python
-import os
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-from peft import PeftModel
-from norn_wrapper import HybridNornWrapperV4
-
-device = "cuda" if torch.cuda.is_available() else "cpu"
-target_dtype = torch.bfloat16 if device == "cuda" else torch.float32
-
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_compute_dtype=torch.bfloat16,
-    bnb_4bit_quant_type="nf4"
-) if device == "cuda" else None
-
-base_model_id = "Qwen/Qwen3-4B-Base"
-tokenizer = AutoTokenizer.from_pretrained(base_model_id, trust_remote_code=True)
-if tokenizer.pad_token is None:
-    tokenizer.pad_token = tokenizer.eos_token
-
-load_kwargs = {"device_map": "auto" if device == "cuda" else None, "trust_remote_code": True}
-if bnb_config:
-    load_kwargs["quantization_config"] = bnb_config
-else:
-    load_kwargs["torch_dtype"] = torch.float32
-
-base_model = AutoModelForCausalLM.from_pretrained(base_model_id, **load_kwargs)
-peft_model = PeftModel.from_pretrained(base_model, "./")
-
-norn = HybridNornWrapperV4(
-    peft_model=peft_model,
-    embed_dim=base_model.config.hidden_size,
-    ltc_dim=32,
-    hrr_dim=256
-)
-norn.ode_proj.to(device=device, dtype=target_dtype)
-norn.hrr_proj.to(device=device, dtype=target_dtype)
-
-bio_state = torch.load("norn_biology_proj_v15.pt", weights_only=False, map_location=device)
-norn.ode_proj.load_state_dict(bio_state['ode_proj'])
-norn.hrr_proj.load_state_dict(bio_state['hrr_proj'])
-norn.eval()
-
-# Initialize biological context vectors (LTC ODE brainstem state & HRR associative vector)
-ode_latent, hrr_vector = norn.init_bio_states(batch_size=1, device=device, dtype=target_dtype)
-
-# Continuous Latent Deliberation via Auto-Router
-prompt = "Question: Tracy used a 4-foot wire to support tomato plants. She cuts it into 6-inch pieces. How many pieces does she get?"
-output_tokens = norn.generate_with_latent_cot(
-    tokenizer=tokenizer,
-    prompt=prompt,
-    num_latent_steps="auto",
-    max_new_tokens=256,
-    ode_latent=ode_latent,
-    hrr_vector=hrr_vector
-)
-
-print(tokenizer.decode(output_tokens[0], skip_special_tokens=True))
-```
-
-### 8.4 Running with LM Studio & Ollama (Universal Local API Adapter)
-
-Project Norn V15 includes a dedicated local API adapter (`norn_api_server.py`) that implements both OpenAI and Ollama REST specifications with real-time streaming support. This allows frontends such as **LM Studio**, **Ollama CLI**, **Open-WebUI**, **Cursor**, or **Continue** to run Norn while preserving its full hybrid architecture (Continuous Latent CoT deliberation, LTC ODE brainstem modulation, and HRR associative memory):
-
-#### 1. Start the Universal Adapter Server
 ```bash
 # Serves both OpenAI (/v1/chat/completions) and Ollama (/api/chat, /api/tags) protocols
 python norn_api_server.py --port 11434 --steps auto
 ```
 
-#### 2. Connect LM Studio
-- In LM Studio, go to **Local Server** / **Developer Settings**.
-- Set endpoint: `http://localhost:11434/v1`
-- Select model: `norn-v15`
-
-#### 3. Connect Ollama & Open-WebUI
-- Any client configured for Ollama can point directly to `http://localhost:11434`.
-- The model will appear as `norn-v15:latest` in `ollama list` and Open-WebUI model dropdowns.
-
-#### 4. Direct Ollama Modelfile Registration (Optional)
-```bash
-ollama create norn -f ./Modelfile
-ollama run norn
-```
-
-#### 5. Merging LoRA Weights for Standalone GGUF Export
-```bash
-python merge_lora.py --output_dir ./norn_v15_merged
-# Convert to GGUF using llama.cpp:
-# python llama.cpp/convert_hf_to_gguf.py ./norn_v15_merged --outfile norn-v15-q4_k_m.gguf
-```
+- **LM Studio**: Point local server endpoint to `http://localhost:11434/v1` (Model: `norn-v15`).
+- **Ollama / Open-WebUI**: Point `OLLAMA_HOST` to `http://localhost:11434` (Model: `norn-v15:latest`).
+- **Modelfile**: Run `ollama create norn -f ./Modelfile` for direct registration.
+- **LoRA Merge**: Run `python merge_lora.py --output_dir ./norn_v15_merged` for standalone GGUF conversion.
 
 ---
 
-## 9. References
+## 8. References
 
 1. **Vaswani, A., et al.** (2017). Attention is all you need. *NeurIPS*.
 2. **Wei, J., et al.** (2022). Chain-of-thought prompting elicits reasoning in large language models. *NeurIPS*.
@@ -333,7 +208,7 @@ python merge_lora.py --output_dir ./norn_v15_merged
 
 ---
 
-## 10. Citation
+## 9. Citation
 
 ```bibtex
 @misc{osakra_norn_v15_2026,

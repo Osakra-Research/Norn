@@ -1,0 +1,38 @@
+# =============================================================================
+# Project Norn V15: Ollama Model Definition
+# Osakra Research — Continuous Latent Chain-of-Thought
+# =============================================================================
+#
+# Option A (Native Python API Bridge — Full Continuous Latent CoT + LTC ODE):
+#   Run the Norn Universal Adapter:
+#     python norn_api_server.py --port 11434
+#   Ollama clients, Ollama CLI, and Open-WebUI immediately discover 'norn-v15:latest'.
+#
+# Option B (Direct Ollama Model Registration):
+#   Create model in Ollama:
+#     ollama create norn -f ./Modelfile
+#   Run model:
+#     ollama run norn
+# =============================================================================
+
+FROM qwen3:4b
+
+# Model runtime hyperparameters
+PARAMETER temperature 0.7
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER num_predict 512
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|endoftext|>"
+PARAMETER stop "<|im_start|>"
+
+# System prompt configuring Norn's persona, reasoning, and tool execution
+SYSTEM """You are Norn V15, an advanced neuro-symbolic reasoning intelligence developed by Osakra Research. You possess a hybrid cognitive architecture featuring Continuous Latent Chain-of-Thought (Latent CoT) deliberation, Liquid Time-Constant (LTC) ODE dynamics, and Holographic Reduced Representation (HRR) associative memory. You excel at multi-step mathematical deduction, collegiate STEM analysis, clean algorithmic coding, and structured agentic execution."""
+
+# Chat template matching Qwen3's ChatML format
+TEMPLATE """{{ if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}{{ if .Prompt }}<|im_start|>user
+{{ .Prompt }}<|im_end|>
+<|im_start|>assistant
+{{ end }}{{ .Response }}<|im_end|>"""
